@@ -1,40 +1,94 @@
-# Langkah Deploy di Amazon Linux 2023
-## *Install dependency*
+# LKS Cloud Computing – Module 2 (Deployment)
+
+## 🎯 Objective
+Deploy Node.js application with:
+- RDS Aurora MySQL
+- S3 Backup Integration
+
+---
+
+## 🧠 Architecture
+![Infra](/public/uploads/modul2.png)
+
+---
+## ⚡ Setup Steps
+
+### 1. Create RDS (Aurora MySQL)
+
+- Private subnet
+- Public access: NO
+- SG: sg-db
+
+---
+
+### 2. Create S3 Bucket
+
+- Unique name (e.g. lks-jp2-deri)
+- Same region
+
+---
+
+### 3. Connect EC2 to DB
+
+Install client:
+```bash
+sudo dnf install mariadb105 -y
 ```
+
+### 4. Setup Application
+```bash
+git clone https://github.com/Deri-Nugroho/modul2-rentalmobil
+cd rentalmobil
+
 bash setup.sh
 ```
-atau bisa dengan 
-```
-npm install --prefix
-npm isntall -g pm2
-```
-## Konfigurasi *environment*
-1. Buat file **.env** pada folder aplikasi
-2. Tambahkan kebutuhan untuk mengkoneksikan database seperti hostname, user, password, nama database dan AWS credentials seperti berikut :
-```java
-# Konfigurasi Database Server
-DB_HOST=localhost         # Alamat host database (contoh: localhost atau IP server atau DNS)
-DB_USER=root              # Nama pengguna database (contoh: root atau admin)
-DB_PASSWORD=yourpassword  # Kata sandi database
-DB_NAME=rental_cars       # Nama database yang digunakan
 
-# Konfigurasi server
-PORT=3000                 # Port tempat aplikasi berjalan
+### 5. Configure Environment
 
-# AWS Credentials
-AWS_ACCESS_KEY_ID=your-access-key-id   # Access Key ID AWS
-AWS_SECRET_ACCESS_KEY=your-secret-key  # Secret Access Key AWS
-AWS_SESSION_TOKEN=your-session-token   # Token sesi AWS (jika menggunakan kredensial sementara)
-AWS_REGION=your-region                 # Wilayah AWS (contoh: us-east-1, us-west-2)
-AWS_BUCKET_NAME=your-bucket-name       # Nama bucket S3 tempat penyimpanan backup
+Create .env:
+```bash
+DB_HOST=<RDS-ENDPOINT>
+DB_USER=admin
+DB_PASSWORD=yourpassword
+DB_NAME=rentalmobil
+
+AWS_REGION=us-east-1
+AWS_BUCKET_NAME=lks-jp2-deri
 ```
-## Menambahkan data *dummy* ke *database*
+
+### 6. Initialize Database
+```bash
+npm run init-db
 ```
-node dummy.js
+
+### 7. Run Application
+```bash
+pm2 start app.js --name lks-app
+pm2 save
+pm2 startup
 ```
-## Menjalankan aplikasi 
+
+### 8. Test Application
+
+Open browser:
+```bash
+http://<EC2-PUBLIC-IP>
 ```
-pm2 start app.js
+Application should be accessible without port.
+
+### 9. Test Backup
+```bash
+http://<EC2-PUBLIC-IP>/backup
 ```
-## Ujicoba aplikasi
-Buka browser dan masukan IP Address Anda dan portnya seperti berikut: **http://localhost:3000**
+
+> Note:
+> Application runs on port 3000 internally, but exposed via Nginx (port 80).
+
+## 🔄 Process Persistence
+
+Ensure application auto-start on reboot:
+
+```bash
+pm2 save
+pm2 startup
+```

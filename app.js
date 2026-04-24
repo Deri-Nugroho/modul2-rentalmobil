@@ -14,14 +14,17 @@ const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 const fs = require('fs');
 
 // Konfigurasi S3 Client
-const s3 = new S3Client({
-    region: process.env.AWS_REGION,
-    credentials: {
+const s3Config = { region: process.env.AWS_REGION };
+
+// Hanya tambahkan credentials jika ada di .env
+if (process.env.AWS_ACCESS_KEY_ID) {
+    s3Config.credentials = {
         accessKeyId: process.env.AWS_ACCESS_KEY_ID,
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-	sessionToken: process.env.AWS_SESSION_TOKEN, // Menambahkan session token 
-    },
-});
+        sessionToken: process.env.AWS_SESSION_TOKEN,
+    };
+}
+const s3 = new S3Client(s3Config);
 
 // Route untuk backup database
 app.get('/backup', async (req, res) => {
