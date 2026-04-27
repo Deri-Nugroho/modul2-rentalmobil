@@ -44,7 +44,7 @@ SSH into your `ec2-web` instance, then run:
 
 ```bash
 # Clone the repository
-git clone [https://github.com/Deri-Nugroho/modul2-rentalmobil](https://github.com/Deri-Nugroho/modul2-rentalmobil)
+git clone https://github.com/Deri-Nugroho/modul2-rentalmobil
 cd modul2-rentalmobil
 
 # Run the setup script (installs MariaDB Client, Node.js, and PM2)
